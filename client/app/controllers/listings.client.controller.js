@@ -14,6 +14,8 @@ angular.module('listings').controller('ListingsController', ['$scope', '$locatio
       });
     };
 
+
+
     $scope.findOne = function() {
       debugger;
       $scope.loading = true;
@@ -43,6 +45,8 @@ angular.module('listings').controller('ListingsController', ['$scope', '$locatio
               });
     };  
 
+
+
     $scope.create = function(isValid) {
       $scope.error = null;
 
@@ -61,15 +65,11 @@ angular.module('listings').controller('ListingsController', ['$scope', '$locatio
         code: $scope.code, 
         address: $scope.address
       };
-
-      /* Save the article using the Listings factory */
       Listings.create(listing)
               .then(function(response) {
-                //if the object is successfully saved redirect back to the list page
-                $state.go('listings.list', { successMessage: 'Listing succesfully created!' });
+                $state.go('listings.list', { successMessage: 'Listing created!' });
               }, function(error) {
-                //otherwise display the error
-                $scope.error = 'Unable to save listing!\n' + error;
+                $scope.error = 'cant save listing!\n' + error;
               });
     };
 
@@ -79,13 +79,45 @@ angular.module('listings').controller('ListingsController', ['$scope', '$locatio
         successfully finished, navigate back to the 'listing.list' state using $state.go(). If an error 
         occurs, pass it to $scope.error. 
        */
+
+
+    if (!isValid) {
+            $scope.$broadcast('show-errors-check-validity', 'articleForm');
+
+            return false;
+        }
+        var id = $stateParams.listingId;
+        var listing = $scope.listing;
+
+        Listings.update(id, listing)
+            .then(function(response) {
+                //if the object is successfully updated redirect back to the list page
+                $state.go('listings.list', { successMessage: 'Listing updated!' });
+            }, function(error) {
+                //otherwise display the error
+                $scope.error = 'cant update listing!\n' + error;
+            });
     };
+
+    //};
 
     $scope.remove = function() {
       /*
         Implement the remove function. If the removal is successful, navigate back to 'listing.list'. Otherwise, 
         display the error. 
        */
+
+      var id = $stateParams.listingId;
+
+        /* Update the article using the Listings factory */
+        Listings.delete(id)
+            .then(function(response) {
+                //if the object is successfully removed redirect back to the list page
+                $state.go('listings.list', { successMessage: 'Listing removed!' });
+            }, function(error) {
+                //otherwise display the error
+                $scope.error = 'Cant remove listing, theres an error!\n' + error;
+            });
     };
 
     /* Bind the success message to the scope if it exists as part of the current state */
@@ -101,5 +133,47 @@ angular.module('listings').controller('ListingsController', ['$scope', '$locatio
       }, 
       zoom: 14
     }
+
+
+    $scope.createMap = function () {
+
+      Listings.getAll().then(function(response) {
+        $scope.listings = response.data;
+        var markers = [];
+        for(var i in $scope.listings){
+            if($scope.listings[i].coordinates != null){
+              //alert($scope.listings[i].coordinates );
+                markers.push(createMarker(i, $scope.listings[i]));
+            }
+        }
+        $scope.placeMarkers = markers;
+      }, function(error) {
+        $scope.loading = false;
+        $scope.error = 'cant get listings\n' + error;
+      });
+    }
+
+    var createMarker = function(listingKey, listing, idKey){
+          if (idKey == null) {
+              idKey = "id";
+          }
+
+          var resultMarker = {
+              code: listing.code,
+              name: listing.name,
+              address: listing.address,
+              latitude: listing["coordinates"]["latitude"],
+              longitude: listing["coordinates"]["longitude"]
+          };
+
+          resultMarker[idKey] = listingKey;
+          return resultMarker;
+      }
+
   }
+
+
+
+
+
 ]);

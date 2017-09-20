@@ -8,3 +8,21 @@
     https://angular-ui.github.io/angular-google-maps/#!/api/markers
     https://angular-ui.github.io/angular-google-maps/#!/api/windows
   -->
+
+
+
+  <div ng-controller="ListingsController" ng-init="createMap()">
+    <ui-gmap-google-map center="map.center" zoom="map.zoom" draggable="true" options="options">
+        <ui-gmap-markers models="placeMarkers" coords="'self'" icon="'icon'">
+            <ui-gmap-windows>
+                <div>
+                    <div ng-non-bindable>Building Code : {{code}}</div>
+                    <div ng-non-bindable>Building Name : {{name}}</div>
+                    <div ng-non-bindable>Building Address : {{address}}</div>
+                    <div ng-non-bindable>Building Latitude : {{latitude}}</div>
+                    <div ng-non-bindable>Building Longitude : {{longitude}}</div>
+                </div>
+            </ui-gmap-windows>
+        </ui-gmap-markers>
+    </ui-gmap-google-map>
+</div>
